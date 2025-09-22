@@ -13,7 +13,7 @@ set -e  # Exit on any error
 # Script configuration
 SCRIPT_NAME="Open5GS 5G Core Network Installer"
 VERSION="1.0"
-AUTHOR="5G CNF Research Testbed"
+AUTHOR="Rayhan Egar - Digital Hugs"
 
 # Colors for output
 RED='\033[0;31m'
