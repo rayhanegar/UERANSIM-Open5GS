@@ -1,0 +1,300 @@
+#!/bin/bash
+
+# UERANSIM Traceroute Testing Script
+# Tests traceroute to destination through uesimtun0, uesimtun1, and uesimtun2 interfaces
+# Supports different traceroute options and maximum hops configuration
+
+# Default values
+DESTINATION=""
+MAX_HOPS=30
+DELAY_BETWEEN_TESTS=5
+USE_ICMP=false
+USE_TCP=false
+PORT=80
+TIMEOUT=5
+USER=$(whoami)
+
+# Usage function
+usage() {
+    echo "Usage: $0 -d DESTINATION [-h MAX_HOPS] [-t TIMEOUT] [-p PORT] [-D DELAY] [--icmp] [--tcp] [--help]"
+    echo ""
+    echo "Required:"
+    echo "  -d DESTINATION    Destination address (IP or hostname)"
+    echo ""
+    echo "Optional:"
+    echo "  -h MAX_HOPS      Maximum number of hops (default: 30)"
+    echo "  -t TIMEOUT       Timeout per probe in seconds (default: 5)"
+    echo "  -p PORT          TCP port for TCP traceroute (default: 80)"
+    echo "  -D DELAY         Delay between tests in seconds (default: 5)"
+    echo "  --icmp           Use ICMP packets instead of UDP (requires root)"
+    echo "  --tcp            Use TCP SYN packets instead of UDP (requires root)"
+    echo "  --help           Show this help message"
+    echo ""
+    echo "This script will run traceroute for each interface (uesimtun0, uesimtun1, uesimtun2)"
+    echo "By default, uses UDP traceroute which doesn't require root privileges"
+    echo ""
+    echo "Note: ICMP and TCP modes may require root privileges."
+    echo "      Use sufficient delay between tests for accurate results."
+    exit 1
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d)
+            DESTINATION="$2"
+            shift 2
+            ;;
+        -h)
+            MAX_HOPS="$2"
+            shift 2
+            ;;
+        -t)
+            TIMEOUT="$2"
+            shift 2
+            ;;
+        -p)
+            PORT="$2"
+            shift 2
+            ;;
+        -D)
+            DELAY_BETWEEN_TESTS="$2"
+            shift 2
+            ;;
+        --icmp)
+            USE_ICMP=true
+            shift
+            ;;
+        --tcp)
+            USE_TCP=true
+            shift
+            ;;
+        --help)
+            usage
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
+
+# Check required parameters
+if [ -z "$DESTINATION" ]; then
+    echo "Error: Destination address is required"
+    usage
+fi
+
+# Check for conflicting flags
+if [ "$USE_ICMP" = true ] && [ "$USE_TCP" = true ]; then
+    echo "Error: --icmp and --tcp flags are mutually exclusive"
+    usage
+fi
+
+# Timestamp for log files
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+LOG_DIR="/home/${USER}/UERANSIM/testing/traceroute_testing_logs"
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
+
+# Test interfaces
+INTERFACES=("uesimtun0" "uesimtun1" "uesimtun2")
+
+# Determine traceroute mode
+if [ "$USE_ICMP" = true ]; then
+    TRACE_MODE="ICMP"
+    TRACE_MODE_DESC="ICMP traceroute"
+elif [ "$USE_TCP" = true ]; then
+    TRACE_MODE="TCP"
+    TRACE_MODE_DESC="TCP traceroute"
+else
+    TRACE_MODE="UDP"
+    TRACE_MODE_DESC="UDP traceroute"
+fi
+
+echo "========================================="
+echo "Starting Traceroute Tests"
+echo "========================================="
+echo "Destination: $DESTINATION"
+echo "Max Hops: $MAX_HOPS"
+echo "Timeout: $TIMEOUT seconds"
+echo "Delay between tests: $DELAY_BETWEEN_TESTS seconds"
+echo "Mode: $TRACE_MODE_DESC"
+if [ "$USE_TCP" = true ]; then
+    echo "TCP Port: $PORT"
+fi
+echo "Timestamp: $TIMESTAMP"
+echo "=========================================="
+echo ""
+
+# Check if destination is reachable
+echo "Checking destination connectivity..."
+ping -c 1 -W 2 "$DESTINATION" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Warning: Cannot ping destination $DESTINATION. Traceroute may still work."
+    echo "Consider using IP address instead of hostname."
+fi
+
+# Function to run a single traceroute test
+run_traceroute() {
+    local interface=$1
+    local log_file="${LOG_DIR}/${interface}_traceroute_${TRACE_MODE}_${TIMESTAMP}.log"
+    
+    echo "Running traceroute from ${interface} to ${DESTINATION}..."
+    
+    # Build command
+    local cmd="/home/${USER}/UERANSIM/build/nr-binder ${interface} traceroute"
+    
+    # Add mode-specific flags
+    if [ "$USE_ICMP" = true ]; then
+        cmd="${cmd} -I"
+    elif [ "$USE_TCP" = true ]; then
+        cmd="${cmd} -T -p ${PORT}"
+    fi
+    
+    # Add common flags
+    cmd="${cmd} -m ${MAX_HOPS} -w ${TIMEOUT} ${DESTINATION}"
+    
+    # Execute and save to log
+    echo "Command: ${cmd}" > "$log_file"
+    echo "Interface: ${interface}" >> "$log_file"
+    echo "Destination: ${DESTINATION}" >> "$log_file"
+    echo "Mode: ${TRACE_MODE_DESC}" >> "$log_file"
+    echo "Max Hops: ${MAX_HOPS}" >> "$log_file"
+    echo "Timeout: ${TIMEOUT} seconds" >> "$log_file"
+    if [ "$USE_TCP" = true ]; then
+        echo "TCP Port: ${PORT}" >> "$log_file"
+    fi
+    echo "Timestamp: $(date)" >> "$log_file"
+    echo "----------------------------------------" >> "$log_file"
+    
+    # Run the traceroute command
+    ${cmd} >> "$log_file" 2>&1
+    local exit_code=$?
+    
+    if [ $exit_code -eq 0 ]; then
+        echo "  ✓ Traceroute completed successfully (log: ${log_file})"
+    else
+        echo "  ✗ Traceroute failed with exit code $exit_code (check log: ${log_file})"
+        # Check for common errors
+        if grep -q "Permission denied" "$log_file"; then
+            echo "    → Permission denied. Try running with sudo for ICMP/TCP modes."
+        elif grep -q "Network is unreachable" "$log_file"; then
+            echo "    → Network unreachable from this interface."
+        elif grep -q "Name or service not known" "$log_file"; then
+            echo "    → DNS resolution failed. Try using IP address."
+        fi
+    fi
+    
+    # Wait between tests
+    echo "  Waiting ${DELAY_BETWEEN_TESTS} seconds before next test..."
+    sleep "$DELAY_BETWEEN_TESTS"
+}
+
+# Main test loop
+for interface in "${INTERFACES[@]}"; do
+    echo ""
+    echo "========================================="
+    echo "Testing Interface: ${interface}"
+    echo "========================================="
+    
+    # Check if interface exists
+    if ! ip link show "$interface" &>/dev/null; then
+        echo "  ✗ Interface ${interface} not found. Skipping..."
+        continue
+    fi
+    
+    # Check if interface has an IP address
+    if ! ip addr show "$interface" | grep -q "inet "; then
+        echo "  ⚠ Interface ${interface} has no IP address. Traceroute may fail."
+    fi
+    
+    # Run traceroute test
+    run_traceroute "$interface"
+    
+    echo ""
+done
+
+# Summary
+echo "========================================="
+echo "All Traceroute Tests Completed"
+echo "========================================="
+echo "Logs are saved in: ${LOG_DIR}"
+echo "Log files pattern: {interface}_traceroute_{mode}_${TIMESTAMP}.log"
+echo ""
+
+# Generate summary report
+SUMMARY_FILE="${LOG_DIR}/traceroute_summary_${TIMESTAMP}.txt"
+echo "Traceroute Summary Report" > "$SUMMARY_FILE"
+echo "========================" >> "$SUMMARY_FILE"
+echo "Date: $(date)" >> "$SUMMARY_FILE"
+echo "Destination: $DESTINATION" >> "$SUMMARY_FILE"
+echo "Max Hops: $MAX_HOPS" >> "$SUMMARY_FILE"
+echo "Timeout: $TIMEOUT seconds" >> "$SUMMARY_FILE"
+echo "Mode: $TRACE_MODE_DESC" >> "$SUMMARY_FILE"
+if [ "$USE_TCP" = true ]; then
+    echo "TCP Port: $PORT" >> "$SUMMARY_FILE"
+fi
+echo "" >> "$SUMMARY_FILE"
+echo "Test Results:" >> "$SUMMARY_FILE"
+echo "-------------" >> "$SUMMARY_FILE"
+
+for interface in "${INTERFACES[@]}"; do
+    echo "" >> "$SUMMARY_FILE"
+    echo "${interface}:" >> "$SUMMARY_FILE"
+    
+    log_file="${LOG_DIR}/${interface}_traceroute_${TRACE_MODE}_${TIMESTAMP}.log"
+    if [ -f "$log_file" ]; then
+        # Extract key information from traceroute
+        if grep -q "traceroute to" "$log_file"; then
+            echo "  Status: Completed" >> "$SUMMARY_FILE"
+            
+            # Count successful hops
+            hop_count=$(grep -c "^ *[0-9]" "$log_file" || echo "0")
+            echo "  Hops traced: $hop_count" >> "$SUMMARY_FILE"
+            
+            # Check if destination was reached
+            if grep -q "\*.*\*.*\*" "$log_file"; then
+                echo "  Destination reached: Possibly (check log for details)" >> "$SUMMARY_FILE"
+            else
+                last_hop=$(tail -5 "$log_file" | grep "^ *[0-9]" | tail -1 | awk '{print $2}')
+                if [ -n "$last_hop" ]; then
+                    echo "  Last responding hop: $last_hop" >> "$SUMMARY_FILE"
+                fi
+            fi
+            
+            # Extract first few hops
+            echo "  First 3 hops:" >> "$SUMMARY_FILE"
+            head -20 "$log_file" | grep "^ *[1-3]" | while read -r line; do
+                echo "    $line" >> "$SUMMARY_FILE"
+            done
+            
+        else
+            echo "  Status: Failed (check log: $log_file)" >> "$SUMMARY_FILE"
+        fi
+    else
+        echo "  Status: Log file not found" >> "$SUMMARY_FILE"
+    fi
+done
+
+echo "" >> "$SUMMARY_FILE"
+echo "Full logs available in: ${LOG_DIR}" >> "$SUMMARY_FILE"
+
+echo "Summary report saved to: ${SUMMARY_FILE}"
+
+# Display quick summary on screen
+echo ""
+echo "Quick Summary:"
+for interface in "${INTERFACES[@]}"; do
+    log_file="${LOG_DIR}/${interface}_traceroute_${TRACE_MODE}_${TIMESTAMP}.log"
+    if [ -f "$log_file" ] && grep -q "traceroute to" "$log_file"; then
+        hop_count=$(grep -c "^ *[0-9]" "$log_file" || echo "0")
+        echo "  ${interface}: ${hop_count} hops traced"
+    else
+        echo "  ${interface}: Failed or incomplete"
+    fi
+done
+
+echo ""
+echo "Use 'cat ${SUMMARY_FILE}' to view detailed summary"

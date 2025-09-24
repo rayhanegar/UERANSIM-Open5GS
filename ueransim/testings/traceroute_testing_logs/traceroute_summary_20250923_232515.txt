@@ -1,0 +1,42 @@
+Traceroute Summary Report
+========================
+Date: Tue Sep 23 11:25:54 PM WIB 2025
+Destination: bits.ub.ac.id
+Max Hops: 30
+Timeout: 5 seconds
+Mode: UDP traceroute
+
+Test Results:
+-------------
+
+uesimtun0:
+  Status: Completed
+  Hops traced: 13
+  Destination reached: Possibly (check log for details)
+  First 3 hops:
+    1  _gateway (172.19.0.1)  10.637 ms  10.646 ms  10.649 ms
+    2  gw-dev.ub.ac.id (175.45.186.1)  10.653 ms  10.656 ms  10.657 ms
+    3  ve140-gw-internal-4.ub.ac.id (175.45.189.179)  11.152 ms  10.708 ms  13.644 ms
+    10  180.240.205.82 (180.240.205.82)  49.887 ms 180.240.205.80 (180.240.205.80)  37.278 ms  37.279 ms
+
+uesimtun1:
+  Status: Completed
+  Hops traced: 13
+  Destination reached: Possibly (check log for details)
+  First 3 hops:
+    1  _gateway (172.19.0.1)  13.115 ms  13.120 ms  13.121 ms
+    2  gw-dev.ub.ac.id (175.45.186.1)  13.122 ms  13.122 ms  13.116 ms
+    3  ve140-gw-internal-4.ub.ac.id (175.45.189.179)  13.156 ms  13.207 ms  18.098 ms
+    10  180.240.205.82 (180.240.205.82)  36.877 ms  36.900 ms 180.240.205.80 (180.240.205.80)  36.879 ms
+
+uesimtun2:
+  Status: Completed
+  Hops traced: 13
+  Last responding hop: 172.66.168.182
+  First 3 hops:
+    1  _gateway (172.19.0.1)  11.986 ms  11.989 ms  11.990 ms
+    2  gw-dev.ub.ac.id (175.45.186.1)  11.990 ms  11.997 ms  11.998 ms
+    3  ve140-gw-internal-4.ub.ac.id (175.45.189.179)  13.029 ms  13.058 ms  13.996 ms
+    10  180.240.205.80 (180.240.205.80)  38.782 ms  38.791 ms  39.954 ms
+
+Full logs available in: /home/rayhan/UERANSIM/testing/traceroute_testing_logs

@@ -1,0 +1,23 @@
+Command: /home/rayhan/UERANSIM/build/nr-binder uesimtun1 iperf3 -c 10.34.4.245 -P 1 -t 10 -w 128K -u -b 100M -R
+----------------------------------------
+ERROR: ld.so: object './libdevbnd.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+Connecting to host 10.34.4.245, port 5201
+Reverse mode, remote host 10.34.4.245 is sending
+[  5] local 172.19.0.137 port 38851 connected to 10.34.4.245 port 5201
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-1.00   sec  9.92 MBytes  83.2 Mbits/sec  0.063 ms  1526/9153 (17%)  
+[  5]   1.00-2.00   sec  8.27 MBytes  69.4 Mbits/sec  0.064 ms  2816/9176 (31%)  
+[  5]   2.00-3.00   sec  8.33 MBytes  69.9 Mbits/sec  0.046 ms  2762/9163 (30%)  
+[  5]   3.00-4.00   sec  8.41 MBytes  70.5 Mbits/sec  0.183 ms  2701/9170 (29%)  
+[  5]   4.00-5.00   sec  8.68 MBytes  72.8 Mbits/sec  0.261 ms  2486/9162 (27%)  
+[  5]   5.00-6.00   sec  8.24 MBytes  69.1 Mbits/sec  0.051 ms  2832/9169 (31%)  
+[  5]   6.00-7.00   sec  8.66 MBytes  72.6 Mbits/sec  0.135 ms  2509/9165 (27%)  
+[  5]   7.00-8.00   sec  8.66 MBytes  72.7 Mbits/sec  0.066 ms  2493/9153 (27%)  
+[  5]   8.00-9.00   sec  8.57 MBytes  71.8 Mbits/sec  0.068 ms  2585/9175 (28%)  
+[  5]   9.00-10.00  sec  8.90 MBytes  74.7 Mbits/sec  0.116 ms  2323/9164 (25%)  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.01  sec   119 MBytes   100 Mbits/sec  0.000 ms  0/91744 (0%)  sender
+[  5]   0.00-10.00  sec  86.7 MBytes  72.7 Mbits/sec  0.116 ms  25033/91650 (27%)  receiver
+
+iperf Done.
