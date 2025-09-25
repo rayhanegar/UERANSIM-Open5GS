@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  amf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: open5gs-amf:latest
+    container_name: open5gs-amf
+    hostname: amf
+    networks:
+      5gcore:
+        ipv4_address: 10.10.0.5
+    ports:
+      # NGAP (N2 interface) - SCTP
+      - "38412:38412/sctp"
+      # SBI (Service Based Interface)
+      - "7777:7777/tcp"
+    volumes:
+      # Mount custom configuration if needed
+      - ./amf.yaml:/etc/open5gs/custom/amf.yaml:ro
+      # Mount logs
+      - ./logs:/var/log/open5gs
+      # Mount TLS certificates if needed
+      - ./tls:/etc/open5gs/tls:ro
+    environment:
+      - COMPONENT=amf
+      - DOMAIN=open5gs.org
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    devices:
+      - /dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.disable_ipv6=0
+    depends_on:
+      - nrf  # AMF typically depends on NRF for service discovery
+    healthcheck:
+      test: ["CMD", "pgrep", "open5gs-amfd"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # NRF service (minimal example - you would need a similar Dockerfile for NRF)
+  nrf:
+    image: open5gs-nrf:latest  # You would need to build this separately
+    container_name: open5gs-nrf
+    hostname: nrf
+    networks:
+      5gcore:
+        ipv4_address: 10.10.0.10
+    ports:
+      - "7778:7777/tcp"
+    restart: unless-stopped
+
+networks:
+  5gcore:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/24
+          gateway: 10.10.0.1
+
+volumes:
+  logs:
+  tls:
