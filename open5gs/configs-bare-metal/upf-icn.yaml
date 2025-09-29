@@ -14,14 +14,13 @@ global:
 upf:
   pfcp:
     server:
-      - address: 127.0.0.7
+      - address: 10.10.0.7
     client:
-      smf:     #  UPF PFCP Client try to associate SMF PFCP Server
-        - address: 127.0.0.4
-  # Change GTP-U server address binding for external access
+     smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+       - address: 10.10.0.4
   gtpu:
     server:
-      - address: 10.34.4.245
+      - address: 10.10.0.7
   session:
     - subnet: 10.45.0.0/24
       sst: 1
@@ -45,5 +44,5 @@ upf:
     #   gateway: 2001:db8:cafe::1
   metrics:
     server:
-      - address: 127.0.0.7
+      - address: 10.10.0.7
         port: 9090

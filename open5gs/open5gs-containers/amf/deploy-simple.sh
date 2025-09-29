@@ -15,8 +15,8 @@ echo -e "${GREEN}=== Simple Open5GS AMF Deployment ===${NC}"
 
 # Check if config file exists
 check_config() {
-    if [ ! -f "./amf-vm.yaml" ]; then
-        echo -e "${RED}Error: amf-vm.yaml not found${NC}"
+    if [ ! -f "./amf.yaml" ]; then
+        echo -e "${RED}Error: amf.yaml not found${NC}"
         echo -e "${YELLOW}Please ensure the configuration file exists in the current directory${NC}"
         exit 1
     fi

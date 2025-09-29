@@ -17,7 +17,7 @@ amf:
         - uri: http://10.10.0.200:7777
   ngap:
     server:
-      - address: 0.0.0.0  # Bind to all interfaces for external gNB
+      - address: 10.10.0.5 
         port: 38412
   metrics:
     server:

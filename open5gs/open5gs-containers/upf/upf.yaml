@@ -11,6 +11,7 @@ upf:
   pfcp:
     server:
       - address: 10.10.0.7
+        port: 8805
   gtpu:
     server:
       - address: 0.0.0.0  # Bind to all interfaces for external gNB

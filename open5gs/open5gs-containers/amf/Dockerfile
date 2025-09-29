@@ -5,68 +5,54 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Update and install necessary packages
+# Install system dependencies and Open5GS AMF in a single layer
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common gnupg && \
+    add-apt-repository ppa:open5gs/latest && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
-        software-properties-common \
-        gnupg \
-        wget \
-        ca-certificates \
-        netbase \
-        iputils-ping \
-        net-tools \
-        iproute2 \
-        iptables \
-        tcpdump \
-        vim \
-        curl \
-        libyaml-0-2 \
-        libmicrohttpd12 \
-        libtalloc2 \
-        libsctp1 \
-        libgnutls30 \
-        libcurl4-gnutls-dev \
-        libnghttp2-14 \
-        libidn11 \
-        libmongoc-1.0-0 \
-        libbson-1.0-0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Add Open5GS repository
-RUN add-apt-repository ppa:open5gs/latest && \
-    apt-get update
-
-# Install Open5GS AMF and its dependencies
-RUN apt-get install -y --no-install-recommends \
         open5gs-amf \
-        open5gs-common && \
+        open5gs-common \
+        ca-certificates \
+        netbase && \
+    mkdir -p /var/log/open5gs /etc/open5gs/tls /var/run/open5gs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create necessary directories
-RUN mkdir -p /var/log/open5gs \
-    && mkdir -p /etc/open5gs/tls \
-    && mkdir -p /var/run/open5gs
+# Create open5gs user and group (matching systemd service)
+RUN groupadd -r open5gs && \
+    useradd -r -g open5gs -d /var/lib/open5gs -s /usr/sbin/nologin open5gs && \
+    chown -R open5gs:open5gs /var/log/open5gs /var/run/open5gs
 
-# Configuration file will be mounted as volume from host
-# Default location: /etc/open5gs/amf.yaml
-# The AMF binary will run directly without wrapper scripts
+# Copy AMF configuration from current directory as default
+# This will be overridden by Docker Compose volume mount
+COPY amf.yaml /etc/open5gs/amf.yaml
+
+# Set proper ownership for configuration and log directories  
+RUN chown -R open5gs:open5gs /etc/open5gs /var/log/open5gs
+
+# Volumes for Docker Compose (logs will be mounted)
+VOLUME ["/var/log/open5gs"]
 
 # Expose AMF ports
 # NGAP (N2 interface) - SCTP
 EXPOSE 38412/sctp
-# SBI (Service Based Interface) - HTTP/2
+# SBI (Service Based Interface) - HTTP/2  
 EXPOSE 7777/tcp
-# Metrics
+# Metrics (matching systemd service)
 EXPOSE 9090/tcp
 
 # Set working directory
 WORKDIR /etc/open5gs
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+# Switch to open5gs user (matching systemd service: User=open5gs Group=open5gs)
+USER open5gs
+
+# Health check with restart behavior similar to systemd (RestartSec=2)
+HEALTHCHECK --interval=2s --timeout=5s --start-period=10s --retries=3 \
     CMD pgrep open5gs-amfd > /dev/null || exit 1
 
-# Run AMF directly with mounted config
+# Run AMF daemon directly (matching systemd ExecStart)-
+# Uses embedded amf.yaml from current directory
+# Equivalent to: ExecStart=/usr/bin/open5gs-amfd -c /etc/open5gs/amf.yaml
 CMD ["/usr/bin/open5gs-amfd", "-c", "/etc/open5gs/amf.yaml"]

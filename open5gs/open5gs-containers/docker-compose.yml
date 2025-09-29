@@ -274,7 +274,7 @@ services:
       - "0.0.0.0:7705:7777/tcp"     # SBI interface - accessible from other VMs
       - "0.0.0.0:9005:9090/tcp"     # Metrics - accessible from other VMs
     volumes:
-      - ./amf/amf-vm.yaml:/etc/open5gs/amf.yaml:ro  # Mount config directly
+      - ./amf/amf.yaml:/etc/open5gs/amf.yaml:ro  # Mount config directly
       - ./logs/amf:/var/log/open5gs
     depends_on:
       - scp
