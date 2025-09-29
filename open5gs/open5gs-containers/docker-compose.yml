@@ -202,32 +202,32 @@ services:
       start_period: 10s
 
   # BSF - Binding Support Function
-  bsf:
-    build:
-      context: ./bsf
-      dockerfile: Dockerfile
-    image: open5gs-bsf:latest
-    container_name: open5gs-bsf
-    hostname: bsf
-    networks:
-      5gcore:
-        ipv4_address: 10.10.0.15
-    ports:
-      - "7715:7777/tcp"  # SBI interface
-    volumes:
-      - ./bsf/bsf.yaml:/etc/open5gs/custom/bsf.yaml:ro
-      - ./logs/bsf:/var/log/open5gs
-    depends_on:
-      - scp
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    healthcheck:
-      test: ["CMD", "pgrep", "open5gs-bsfd"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+  # bsf:
+  #   build:
+  #     context: ./bsf
+  #     dockerfile: Dockerfile
+  #   image: open5gs-bsf:latest
+  #   container_name: open5gs-bsf
+  #   hostname: bsf
+  #   networks:
+  #     5gcore:
+  #       ipv4_address: 10.10.0.15
+  #   ports:
+  #     - "7715:7777/tcp"  # SBI interface
+  #   volumes:
+  #     - ./bsf/bsf.yaml:/etc/open5gs/custom/bsf.yaml:ro
+  #     - ./logs/bsf:/var/log/open5gs
+  #   depends_on:
+  #     - scp
+  #   restart: unless-stopped
+  #   cap_add:
+  #     - NET_ADMIN
+  #   healthcheck:
+  #     test: ["CMD", "pgrep", "open5gs-bsfd"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 10s
 
   # NSSF - Network Slice Selection Function
   nssf:
@@ -235,7 +235,7 @@ services:
       context: ./nssf
       dockerfile: Dockerfile
     image: open5gs-nssf:latest
-    container_name: open5gs-nssf
+    container_name: open5gs-nssf 
     hostname: nssf
     networks:
       5gcore:
