@@ -1,5 +1,21 @@
-#!/bin/bash
-# UPF Startup Script - Creates TUN interfaces for each DNN
+#!/usr/bin/env bash
+# UPF Startup Script - Creates TUN interfaces and launches Open5GS UPF safely
+set -euo pipefail
+
+NF_USER=${NF_USER:-open5gs}
+NF_GROUP=${NF_GROUP:-open5gs}
+LOG_DIR=${NF_LOG_DIR:-/var/log/open5gs}
+RUN_DIR=${NF_RUN_DIR:-/var/run/open5gs}
+CONFIG_SRC=${NF_CONFIG_SRC:-/etc/open5gs/custom/upf.yaml}
+CONFIG_DST=${NF_CONFIG_DST:-/etc/open5gs/upf.yaml}
+
+mkdir -p "${LOG_DIR}" "${RUN_DIR}" "$(dirname "${CONFIG_DST}")"
+chown -R "${NF_USER}:${NF_GROUP}" "${LOG_DIR}" "${RUN_DIR}"
+
+if [ -f "${CONFIG_SRC}" ]; then
+    cp "${CONFIG_SRC}" "${CONFIG_DST}"
+    chown "${NF_USER}:${NF_GROUP}" "${CONFIG_DST}"
+fi
 
 echo "Creating TUN interfaces for Open5GS UPF..."
 
@@ -43,19 +59,23 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 
 # Configure iptables NAT rules for each subnet
 echo "Configuring NAT rules..."
-iptables -t nat -A POSTROUTING -s 10.45.0.0/24 ! -o ogstun -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.45.1.0/24 ! -o ogstun2 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 10.45.2.0/24 ! -o ogstun3 -j MASQUERADE
-ip6tables -t nat -A POSTROUTING -s 2001:db8:cafe::/48 ! -o ogstun -j MASQUERADE
+iptables -t nat -C POSTROUTING -s 10.45.0.0/24 ! -o ogstun -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -s 10.45.0.0/24 ! -o ogstun -j MASQUERADE
+iptables -t nat -C POSTROUTING -s 10.45.1.0/24 ! -o ogstun2 -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -s 10.45.1.0/24 ! -o ogstun2 -j MASQUERADE
+iptables -t nat -C POSTROUTING -s 10.45.2.0/24 ! -o ogstun3 -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -s 10.45.2.0/24 ! -o ogstun3 -j MASQUERADE
+ip6tables -t nat -C POSTROUTING -s 2001:db8:cafe::/48 ! -o ogstun -j MASQUERADE 2>/dev/null || \
+    ip6tables -t nat -A POSTROUTING -s 2001:db8:cafe::/48 ! -o ogstun -j MASQUERADE
 
 # Accept input on TUN interfaces
-iptables -I INPUT -i ogstun -j ACCEPT
-iptables -I INPUT -i ogstun2 -j ACCEPT
-iptables -I INPUT -i ogstun3 -j ACCEPT
-ip6tables -I INPUT -i ogstun -j ACCEPT
+iptables -C INPUT -i ogstun -j ACCEPT 2>/dev/null || iptables -I INPUT -i ogstun -j ACCEPT
+iptables -C INPUT -i ogstun2 -j ACCEPT 2>/dev/null || iptables -I INPUT -i ogstun2 -j ACCEPT
+iptables -C INPUT -i ogstun3 -j ACCEPT 2>/dev/null || iptables -I INPUT -i ogstun3 -j ACCEPT
+ip6tables -C INPUT -i ogstun -j ACCEPT 2>/dev/null || ip6tables -I INPUT -i ogstun -j ACCEPT
 
 echo "TUN interfaces configured successfully"
 
 # Start UPF daemon
 echo "Starting Open5GS UPF daemon..."
-exec /usr/bin/open5gs-upfd -c /etc/open5gs/custom/upf.yaml
+exec gosu "${NF_USER}:${NF_GROUP}" /usr/bin/open5gs-upfd -c "${CONFIG_DST}"

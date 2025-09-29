@@ -1,0 +1,13 @@
+Open5GS daemon v2.7.6
+
+09/29 17:26:31.303: [app] INFO: Configuration: '/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+09/29 17:26:31.303: [app] INFO: File Logging: '/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+09/29 17:26:31.330: [metrics] INFO: metrics_server() [http://10.10.0.7]:9090 (../lib/metrics/prometheus/context.c:300)
+09/29 17:26:31.330: [pfcp] INFO: pfcp_server() [10.10.0.7]:8805 (../lib/pfcp/path.c:30)
+09/29 17:26:31.330: [gtp] INFO: gtp_server() [0.0.0.0]:2152 (../lib/gtp/path.c:30)
+09/29 17:26:31.331: [app] INFO: UPF initialize...done (../src/upf/app.c:31)
+09/29 17:26:33.638: [upf] INFO: PFCP associated [10.10.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+09/29 17:31:25.419: [app] INFO: SIGTERM received (../src/main.c:54)
+09/29 17:31:25.419: [app] INFO: Open5GS daemon terminating... (../src/main.c:231)
+09/29 17:31:25.420: [upf] INFO: PFCP de-associated [10.10.0.4]:8805 (../src/upf/pfcp-sm.c:184)
+09/29 17:31:25.422: [app] INFO: UPF terminate...done (../src/upf/app.c:39)

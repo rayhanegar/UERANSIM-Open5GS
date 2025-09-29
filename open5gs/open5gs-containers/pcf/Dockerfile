@@ -1,4 +1,4 @@
-# Dockerfile for Open5GS AMF (Access and Mobility Management Function)
+# Dockerfile for Open5GS PCF (Policy Control Function)
 FROM ubuntu:22.04
 
 # Set environment variables to avoid interactive prompts during installation
@@ -13,15 +13,16 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         open5gs-pcf \
         open5gs-common \
+        gosu \
         ca-certificates \
         netbase && \
-    mkdir -p /var/log/open5gs /etc/open5gs/tls /var/run/open5gs && \
+    mkdir -p /var/log/open5gs /etc/open5gs/tls /etc/open5gs/custom /var/run/open5gs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create open5gs user and group (matching systemd service)
-RUN groupadd -r open5gs && \
-    useradd -r -g open5gs -d /var/lib/open5gs -s /usr/sbin/nologin open5gs && \
+# Create open5gs user and group (matching systemd service) - handle case where they already exist
+RUN (groupadd -r open5gs || true) && \
+    (useradd -r -g open5gs -d /var/lib/open5gs -s /usr/sbin/nologin open5gs || true) && \
     chown -R open5gs:open5gs /var/log/open5gs /var/run/open5gs
 
 # Copy pcf configuration from current directory as default
@@ -30,6 +31,18 @@ COPY pcf.yaml /etc/open5gs/pcf.yaml
 
 # Set proper ownership for configuration and log directories  
 RUN chown -R open5gs:open5gs /etc/open5gs /var/log/open5gs
+
+# Runtime environment defaults for entrypoint helper
+ENV NF_USER=open5gs \
+    NF_GROUP=open5gs \
+    NF_LOG_DIR=/var/log/open5gs \
+    NF_RUN_DIR=/var/run/open5gs \
+    NF_CONFIG_SRC=/etc/open5gs/custom/pcf.yaml \
+    NF_CONFIG_DST=/etc/open5gs/pcf.yaml
+
+# Copy entrypoint helper that manages permissions when bind mounts are present
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Volumes for Docker Compose (logs will be mounted)
 VOLUME ["/var/log/open5gs"]
@@ -43,14 +56,9 @@ EXPOSE 9090/tcp
 # Set working directory
 WORKDIR /etc/open5gs
 
-# Switch to open5gs user (matching systemd service: User=open5gs Group=open5gs)
-USER open5gs
-
 # Health check with restart behavior similar to systemd (RestartSec=2)
 HEALTHCHECK --interval=2s --timeout=5s --start-period=10s --retries=3 \
     CMD pgrep open5gs-pcfd > /dev/null || exit 1
 
-# Run pcf daemon directly (matching systemd ExecStart)-
-# Uses embedded pcf.yaml from current directory
-# Equivalent to: ExecStart=/usr/bin/open5gs-pcfd -c /etc/open5gs/pcf.yaml
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/bin/open5gs-pcfd", "-c", "/etc/open5gs/pcf.yaml"]

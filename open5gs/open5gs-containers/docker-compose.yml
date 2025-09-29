@@ -67,7 +67,7 @@ services:
       5gcore:
         ipv4_address: 10.10.0.200
     ports:
-      - "7720:7777/tcp"  # SBI interface
+      - "7722:7777/tcp"  # SBI interface
     volumes:
       - ./scp/scp.yaml:/etc/open5gs/custom/scp.yaml:ro
       - ./logs/scp:/var/log/open5gs
