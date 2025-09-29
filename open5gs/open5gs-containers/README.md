@@ -55,47 +55,57 @@ All NFs run as separate containers on a Docker bridge network (10.10.0.0/24) wit
 
 ## Quick Start
 
-### 1. Setup Host Network (Run Once)
+### 1. Prepare host networking (run when the machine boots)
 
 ```bash
 # Make the script executable
 chmod +x setup-host-network.sh
 
-# Run with sudo to configure host networking
+# Configure host-side routing (uses tailscale0 for the tunnel address)
 sudo ./setup-host-network.sh
+
+# Optionally persist the iptables rules across reboots
+sudo SAVE_RULES=true ./setup-host-network.sh
 ```
 
-This script will:
-- Enable IP forwarding
-- Configure iptables rules for NAT and port forwarding
-- Load SCTP kernel module
-- Set up routing for external access
+The script now discovers the Tailscale tunnel address from `tailscale0` and configures
+all forwarding/NAT rules against that IP. Persistence is disabled by default—setting
+`SAVE_RULES=true` mirrors the old behaviour if you want the rules saved to disk.
 
-### 2. Build and Start All Services
+### 2. Seed the shared log directories
+
+Each NF writes logs to a bind-mounted directory under `./logs/<nf-name>`. Create them
+before bringing up the stack so they have the right ownership on the host:
 
 ```bash
-# Build all container images
-docker-compose build
+mkdir -p logs/{nrf,scp,ausf,udr,udm,pcf,nssf,amf,smf,upf}
+```
 
-# Start all services in background
-docker-compose up -d
+### 3. Build and start the containers
 
-# Or start specific services only (5G core essential services)
-docker-compose up -d mongodb nrf scp udr udm ausf pcf bsf nssf amf smf upf
+```bash
+# Build all container images (Docker Compose v2 syntax)
+docker compose build
+
+# Start all services in the background
+docker compose up -d
+
+# Or launch only the 5GC essentials
+docker compose up -d mongodb nrf scp udr udm ausf pcf nssf amf smf upf
 ```
 
 ### 3. Verify Services
 
 ```bash
 # Check if all containers are running
-docker-compose ps
+docker compose ps
 
-# Check logs for any service
-docker-compose logs -f amf  # Follow AMF logs
-docker-compose logs smf     # View SMF logs
+# Tail logs for a service
+docker compose logs -f amf
+docker compose logs smf
 
-# Check network connectivity
-docker exec open5gs-amf ping -c 1 10.10.0.10  # Test AMF to NRF connectivity
+# Check network connectivity between NFs
+docker exec open5gs-amf ping -c 1 10.10.0.10
 ```
 
 ## Connecting External gNB/UE
@@ -172,13 +182,13 @@ db.subscribers.insertOne({
 
 ```bash
 # Check if services are healthy
-docker-compose ps
+docker compose ps
 
 # Restart a specific service
-docker-compose restart amf
+docker compose restart amf
 
 # Check detailed logs
-docker-compose logs --tail=100 amf
+docker compose logs --tail=100 amf
 ```
 
 ### Common Issues
@@ -192,8 +202,8 @@ docker-compose logs --tail=100 amf
    - Check: `docker exec open5gs-upf ip addr show ogstun`
 
 3. **MongoDB Connection Issues**
-   - Ensure MongoDB is healthy: `docker-compose ps mongodb`
-   - Check logs: `docker-compose logs mongodb`
+  - Ensure MongoDB is healthy: `docker compose ps mongodb`
+  - Check logs: `docker compose logs mongodb`
 
 4. **Port Already in Use**
    - Check port usage: `sudo netstat -tlnp | grep 38412`
@@ -205,12 +215,17 @@ docker-compose logs --tail=100 amf
 
 Each NF's configuration can be customized by editing the YAML files in their respective directories:
 
+Each NF image ships with an embedded baseline config plus an entrypoint that copies a
+bind-mounted override from `./<nf>/<nf>.yaml` into `/etc/open5gs/<nf>.yaml` on startup.
+Edit the file under this directory structure, then restart the service to apply the
+changes:
+
 ```bash
 # Edit AMF configuration
-vim amf/amf.yaml
+$EDITOR amf/amf.yaml
 
 # Restart AMF to apply changes
-docker-compose restart amf
+docker compose restart amf
 ```
 
 ### Scaling Services
@@ -219,7 +234,7 @@ Some services can be scaled horizontally:
 
 ```bash
 # Scale UPF instances (requires load balancing configuration)
-docker-compose up -d --scale upf=2
+docker compose up -d --scale upf=2
 ```
 
 ### Enable/Disable 4G Support
@@ -256,13 +271,13 @@ logs/
 
 ```bash
 # Stop all containers
-docker-compose down
+docker compose down
 
-# Stop and remove volumes (WARNING: Deletes database)
-docker-compose down -v
+# Stop and remove volumes (WARNING: deletes MongoDB data)
+docker compose down -v
 
-# Remove all images
-docker-compose down --rmi all
+# Remove all images built in this project
+docker compose down --rmi all
 ```
 
 ## Security Notes
@@ -276,5 +291,5 @@ docker-compose down --rmi all
 
 For issues or questions:
 1. Check Open5GS documentation: https://open5gs.org/
-2. Review container logs: `docker-compose logs [service]`
+2. Review container logs: `docker compose logs [service]`
 3. Verify network configuration: `docker network inspect open5gs-containers_5gcore`
