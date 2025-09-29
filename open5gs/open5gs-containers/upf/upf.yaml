@@ -17,10 +17,26 @@ upf:
       - address: 0.0.0.0  # Bind to all interfaces for external gNB
         port: 2152      # Standard port, can use 2153 as alternative
   session:
-    - subnet: 10.45.0.0/16
+    # DNN: embb.testbed (eMBB - Enhanced Mobile Broadband)
+    - subnet: 10.45.0.0/24
       gateway: 10.45.0.1
+      dnn: embb.testbed
+      dev: ogstun
+    # DNN: urllc.v2x (URLLC - Ultra Reliable Low Latency Communications)
+    - subnet: 10.45.1.0/24
+      gateway: 10.45.1.1
+      dnn: urllc.v2x
+      dev: ogstun2
+    # DNN: mmtc.testbed (mMTC - Massive Machine Type Communications)  
+    - subnet: 10.45.2.0/24
+      gateway: 10.45.2.1
+      dnn: mmtc.testbed
+      dev: ogstun3
+    # IPv6 support
     - subnet: 2001:db8:cafe::/48
       gateway: 2001:db8:cafe::1
+      dnn: embb.testbed
+      dev: ogstun
   metrics:
     server:
       - address: 10.10.0.7

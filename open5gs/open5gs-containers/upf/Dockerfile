@@ -28,6 +28,10 @@ RUN groupadd -r open5gs && \
 # This will be overridden by Docker Compose volume mount
 COPY upf.yaml /etc/open5gs/upf.yaml
 
+# Copy startup script
+COPY startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
+
 # Set proper ownership for configuration and log directories  
 RUN chown -R open5gs:open5gs /etc/open5gs /var/log/open5gs
 
@@ -47,14 +51,13 @@ EXPOSE 9090/tcp
 # Set working directory
 WORKDIR /etc/open5gs
 
-# Switch to open5gs user (matching systemd service: User=open5gs Group=open5gs)
-USER open5gs
+# NOTE: Running as root is required to create TUN interfaces
+# The startup script will handle proper permissions
+# USER open5gs - commented out for TUN interface creation
 
 # Health check with restart behavior similar to systemd (RestartSec=2)
 HEALTHCHECK --interval=2s --timeout=5s --start-period=10s --retries=3 \
     CMD pgrep open5gs-upfd > /dev/null || exit 1
 
-# Run upf daemon directly (matching systemd ExecStart)-
-# Uses embedded upf.yaml from current directory
-# Equivalent to: ExecStart=/usr/bin/open5gs-upfd -c /etc/open5gs/upf.yaml
-CMD ["/usr/bin/open5gs-upfd", "-c", "/etc/open5gs/upf.yaml"]
+# Run startup script which creates TUN interfaces and starts UPF
+CMD ["/usr/local/bin/startup.sh"]
