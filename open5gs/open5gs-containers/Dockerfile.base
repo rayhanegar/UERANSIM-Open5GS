@@ -1,0 +1,87 @@
+# Base Dockerfile for Open5GS Network Functions
+FROM ubuntu:22.04 AS open5gs-base
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+ENV OPEN5GS_VERSION=2.7.2
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        software-properties-common \
+        gnupg \
+        wget \
+        ca-certificates \
+        netbase \
+        iputils-ping \
+        net-tools \
+        iproute2 \
+        iptables \
+        tcpdump \
+        vim \
+        curl \
+        libyaml-0-2 \
+        libmicrohttpd12 \
+        libtalloc2 \
+        libsctp1 \
+        libgnutls30 \
+        libcurl4-gnutls-dev \
+        libnghttp2-14 \
+        libidn11 \
+        libmongoc-1.0-0 \
+        libbson-1.0-0 \
+        lksctp-tools && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Add Open5GS repository
+RUN add-apt-repository ppa:open5gs/latest && \
+    apt-get update
+
+# Install all Open5GS components (we'll use only what's needed in each container)
+RUN apt-get install -y --no-install-recommends \
+        open5gs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create necessary directories
+RUN mkdir -p /var/log/open5gs \
+    && mkdir -p /etc/open5gs/tls \
+    && mkdir -p /var/run/open5gs
+
+# Create a generic startup script
+RUN echo '#!/bin/bash
+set -e
+
+# Function to handle signals
+_term() {
+  echo "Caught SIGTERM signal!"
+  kill -TERM "$child" 2>/dev/null
+}
+
+trap _term SIGTERM SIGINT
+
+# Get component name from environment
+COMPONENT=${COMPONENT:-amf}
+
+# Check if custom config exists
+if [ -f /etc/open5gs/custom/${COMPONENT}.yaml ]; then
+    echo "Using custom configuration from /etc/open5gs/custom/${COMPONENT}.yaml"
+    cp /etc/open5gs/custom/${COMPONENT}.yaml /etc/open5gs/${COMPONENT}.yaml
+fi
+
+echo "Starting Open5GS ${COMPONENT}..."
+echo "Configuration file: /etc/open5gs/${COMPONENT}.yaml"
+
+# Start component in foreground
+/usr/bin/open5gs-${COMPONENT}d -c /etc/open5gs/${COMPONENT}.yaml &
+
+child=$!
+wait "$child"
+' > /usr/local/bin/start-open5gs.sh && \
+    chmod +x /usr/local/bin/start-open5gs.sh
+
+WORKDIR /etc/open5gs
+
+ENTRYPOINT ["/usr/local/bin/start-open5gs.sh"]

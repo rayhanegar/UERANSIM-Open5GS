@@ -1,0 +1,19 @@
+logger:
+  file:
+    path: /var/log/open5gs/sgwc.log
+    timestamp: true
+
+global:
+  max:
+    ue: 1024
+
+sgwc:
+  gtpc:
+    server:
+      - address: 10.10.0.3
+  pfcp:
+    server:
+      - address: 10.10.0.3
+    client:
+      sgwu:
+        - address: 10.10.0.6

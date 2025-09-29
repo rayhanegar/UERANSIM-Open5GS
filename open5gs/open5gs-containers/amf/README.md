@@ -5,46 +5,68 @@ This directory contains the Dockerfile and configuration files to build and run 
 ## Prerequisites
 
 - Docker installed and running
-- Docker Compose (optional, for easier deployment)
+- Docker Compose for easier deployment
 
 ## Directory Structure
 
 ```
 amf/
-├── Dockerfile          # Docker image definition for AMF
-├── amf.yaml           # AMF configuration file
-├── docker-compose.yml # Docker Compose configuration
-├── build.sh          # Build script
-├── .dockerignore     # Files to exclude from Docker build
-└── README.md         # This file
+├── Dockerfile              # Simplified Docker image definition for AMF
+├── amf.yaml               # Default AMF configuration file  
+├── amf-vm.yaml           # VM-accessible AMF configuration
+├── DOCKERFILE-CHANGES.md  # Documentation of simplification changes
+├── deploy-simple.sh      # Optional deployment script
+├── .dockerignore         # Files to exclude from Docker build
+└── README.md             # This file
 ```
 
-## Building the Docker Image
+## Quick Deployment (Recommended)
 
-### Option 1: Using the build script
+### Using Docker Compose (Standard Approach)
 ```bash
-./build.sh
+# Go to main containers directory
+cd ../
+
+# Start AMF with dependencies
+docker compose up -d amf
+
+# View logs
+docker compose logs -f amf
+
+# Stop AMF
+docker compose stop amf
 ```
 
-### Option 2: Using Docker directly
+### Alternative: Using Deploy Script
 ```bash
-docker build -t open5gs-amf:latest .
+# If you prefer a script approach
+chmod +x deploy-simple.sh
+./deploy-simple.sh
+
+# View script options  
+./deploy-simple.sh help
 ```
 
-### Option 3: Using Docker Compose
+## Manual Docker Commands (Advanced)
+
+### Building the Docker Image
 ```bash
-docker-compose build amf
+# Build from main containers directory
+cd ../
+docker compose build amf
+
+# Or build directly
+docker build -t open5gs-amf:latest ./amf/
 ```
 
-## Running the AMF Container
-
-### Standalone Docker Run
+### Running Container Manually
 ```bash
+# Note: Config is now mounted directly to /etc/open5gs/amf.yaml
 docker run -d \
   --name open5gs-amf \
   --network host \
   --cap-add NET_ADMIN \
-  -v $(pwd)/amf.yaml:/etc/open5gs/custom/amf.yaml:ro \
+  -v $(pwd)/amf-vm.yaml:/etc/open5gs/amf.yaml:ro \
   -v $(pwd)/logs:/var/log/open5gs \
   open5gs-amf:latest
 ```

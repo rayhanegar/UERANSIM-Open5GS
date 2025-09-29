@@ -1,4 +1,4 @@
-# Dockerfile for Open5GS AMF (Access and Mobility Management Function)
+# Dockerfile for Open5GS PCF (Policy Control Function)
 FROM ubuntu:22.04
 
 # Set environment variables to avoid interactive prompts during installation
@@ -29,7 +29,7 @@ RUN apt-get update && \
         libnghttp2-14 \
         libidn11 \
         libmongoc-1.0-0 \
-        libbson-1.0-0 && \
+        libbson-1.0-0  && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -37,9 +37,9 @@ RUN apt-get update && \
 RUN add-apt-repository ppa:open5gs/latest && \
     apt-get update
 
-# Install Open5GS AMF and its dependencies
+# Install Open5GS PCF (Policy Control Function) and its dependencies
 RUN apt-get install -y --no-install-recommends \
-        open5gs-amf \
+        open5gs-pcf \
         open5gs-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -49,13 +49,40 @@ RUN mkdir -p /var/log/open5gs \
     && mkdir -p /etc/open5gs/tls \
     && mkdir -p /var/run/open5gs
 
-# Configuration file will be mounted as volume from host
-# Default location: /etc/open5gs/amf.yaml
-# The AMF binary will run directly without wrapper scripts
+# Copy configuration file (will be mounted as volume in production)
+# Default configuration can be overridden by mounting a custom pcf.yaml
+COPY pcf.yaml /etc/open5gs/pcf.yaml
 
-# Expose AMF ports
-# NGAP (N2 interface) - SCTP
-EXPOSE 38412/sctp
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Function to handle signals\n\
+_term() {\n\
+  echo "Caught SIGTERM signal!"\n\
+  kill -TERM "$child" 2>/dev/null\n\
+}\n\
+\n\
+trap _term SIGTERM SIGINT\n\
+\n\
+# Check if custom config exists\n\
+if [ -f /etc/open5gs/custom/pcf.yaml ]; then\n\
+    echo "Using custom configuration from /etc/open5gs/custom/pcf.yaml"\n\
+    cp /etc/open5gs/custom/pcf.yaml /etc/open5gs/pcf.yaml\n\
+fi\n\
+\n\
+echo "Starting Open5GS PCF (Policy Control Function)..."\n\
+echo "Configuration file: /etc/open5gs/pcf.yaml"\n\
+\n\
+# Start PCF (Policy Control Function) in foreground\n\
+/usr/bin/open5gs-pcfd -c /etc/open5gs/pcf.yaml &\n\
+\n\
+child=$!\n\
+wait "$child"\n\
+' > /usr/local/bin/start-pcf.sh && \
+    chmod +x /usr/local/bin/start-pcf.sh
+
+# Expose PCF (Policy Control Function) ports
 # SBI (Service Based Interface) - HTTP/2
 EXPOSE 7777/tcp
 # Metrics
@@ -66,7 +93,7 @@ WORKDIR /etc/open5gs
 
 # Health check
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
-    CMD pgrep open5gs-amfd > /dev/null || exit 1
+    CMD pgrep open5gs-pcfd > /dev/null || exit 1
 
-# Run AMF directly with mounted config
-CMD ["/usr/bin/open5gs-amfd", "-c", "/etc/open5gs/amf.yaml"]
+# Run PCF (Policy Control Function)
+ENTRYPOINT ["/usr/local/bin/start-pcf.sh"]

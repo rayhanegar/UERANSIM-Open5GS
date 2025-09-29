@@ -39,7 +39,7 @@ RUN add-apt-repository ppa:open5gs/latest && \
 
 # Install Open5GS AMF and its dependencies
 RUN apt-get install -y --no-install-recommends \
-        open5gs-amf \
+        open5gs-sepp2 \
         open5gs-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -49,24 +49,51 @@ RUN mkdir -p /var/log/open5gs \
     && mkdir -p /etc/open5gs/tls \
     && mkdir -p /var/run/open5gs
 
-# Configuration file will be mounted as volume from host
-# Default location: /etc/open5gs/amf.yaml
-# The AMF binary will run directly without wrapper scripts
+# Copy configuration file (will be mounted as volume in production)
+# Default configuration can be overridden by mounting a custom sepp2.yaml
+COPY sepp2.yaml /etc/open5gs/sepp2.yaml
 
-# Expose AMF ports
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Function to handle signals\n\
+_term() {\n\
+  echo "Caught SIGTERM signal!"\n\
+  kill -TERM "$child" 2>/dev/null\n\
+}\n\
+\n\
+trap _term SIGTERM SIGINT\n\
+\n\
+# Check if custom config exists\n\
+if [ -f /etc/open5gs/custom/sepp2.yaml ]; then\n\
+    echo "Using custom configuration from /etc/open5gs/custom/sepp2.yaml"\n\
+    cp /etc/open5gs/custom/sepp2.yaml /etc/open5gs/sepp2.yaml\n\
+fi\n\
+\n\
+echo "Starting Open5GS sepp2..."\n\
+echo "Configuration file: /etc/open5gs/sepp2.yaml"\n\
+\n\
+# Start sepp2 in foreground\n\
+/usr/bin/open5gs-sepp2d -c /etc/open5gs/sepp2.yaml &\n\
+\n\
+child=$!\n\
+wait "$child"\n\
+' > /usr/local/bin/start-sepp2.sh && \
+    chmod +x /usr/local/bin/start-sepp2.sh
+
+# Expose sepp2 ports
 # NGAP (N2 interface) - SCTP
 EXPOSE 38412/sctp
 # SBI (Service Based Interface) - HTTP/2
 EXPOSE 7777/tcp
-# Metrics
-EXPOSE 9090/tcp
 
 # Set working directory
 WORKDIR /etc/open5gs
 
 # Health check
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
-    CMD pgrep open5gs-amfd > /dev/null || exit 1
+    CMD pgrep open5gs-sepp2d > /dev/null || exit 1
 
-# Run AMF directly with mounted config
-CMD ["/usr/bin/open5gs-amfd", "-c", "/etc/open5gs/amf.yaml"]
+# Run sepp2
+ENTRYPOINT ["/usr/local/bin/start-sepp2.sh"]
