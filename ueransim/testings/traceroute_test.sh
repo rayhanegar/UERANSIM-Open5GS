@@ -93,7 +93,7 @@ fi
 
 # Timestamp for log files
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_DIR="/home/${USER}/UERANSIM/testing/traceroute_testing_logs"
+LOG_DIR="/home/${USER}/UERANSIM-Open5GS/ueransim/testings/traceroute_testing_logs"
 
 # Ensure log directory exists
 mkdir -p "$LOG_DIR"
@@ -144,7 +144,7 @@ run_traceroute() {
     echo "Running traceroute from ${interface} to ${DESTINATION}..."
     
     # Build command
-    local cmd="/home/${USER}/UERANSIM/build/nr-binder ${interface} traceroute"
+    local cmd="/home/${USER}/UERANSIM-Open5GS/ueransim/build/nr-binder ${interface} traceroute"
     
     # Add mode-specific flags
     if [ "$USE_ICMP" = true ]; then

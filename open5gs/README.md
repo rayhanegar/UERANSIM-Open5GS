@@ -1,6 +1,9 @@
 # Open5GS Installation and Configuration Script
 
-This repository contains a comprehensive installation script for **Open5GS 5G Core Network** with **3 Network Slices** (eMBB, URLLC, mMTC) and **UERANSIM integration** support.
+This directory provides two complementary ways to stand up an **Open5GS 5G Core Network** with **3 Network Slices** (eMBB, URLLC, mMTC) and **UERANSIM integration** support:
+
+1. A fully automated **bare-metal installer script** (`install_open5gs.sh`) for native deployments on Ubuntu.
+2. A **Docker Compose stack** under `open5gs-containers/` that runs each Network Function in its own container with pre-wired configs, log volumes, and Tailscale-friendly networking.
 
 ## 🎯 Features
 
@@ -9,6 +12,7 @@ This repository contains a comprehensive installation script for **Open5GS 5G Co
 - **UERANSIM Ready**: Pre-configured for UERANSIM integration
 - **Production Ready**: Includes logging, error handling, and service management
 - **Modular Design**: Install, configure, and launch components separately or all at once
+- **Containerized Option**: Prebuilt Dockerfiles and Compose stack mirroring the native layout
 
 ## 📋 Network Slices Configuration
 
@@ -27,7 +31,11 @@ This repository contains a comprehensive installation script for **Open5GS 5G Co
 - Internet connection
 - Minimum 4GB RAM, 20GB free disk space
 
-### One-Command Installation
+### Option A – Native installation script
+
+This path uses `install_open5gs.sh` to provision everything directly on the host.
+
+#### One-Command Installation
 
 ```bash
 sudo ./install_open5gs.sh --all
@@ -40,6 +48,8 @@ This will:
 4. Start all services and validate installation
 
 ## 📖 Usage Options
+
+*(Native installation script; see below for container workflow)*
 
 ### Basic Commands
 
@@ -80,6 +90,33 @@ sudo ./install_open5gs.sh --configure
 # Step 3: Launch services and setup networking
 sudo ./install_open5gs.sh --launch
 ```
+
+### Option B – Docker Compose deployment
+
+If you prefer to run each Network Function in its own container (with log bind-mounts,
+runtime permission fixes, and a Tailscale-aware host setup), head into the
+`open5gs-containers/` directory. A detailed guide lives in
+[`open5gs-containers/README.md`](../open5gs-containers/README.md), but the high-level
+flow is:
+
+```bash
+cd open5gs-containers
+
+# Prepare host networking (reads the tailscale0 address and configures forwarding)
+chmod +x setup-host-network.sh
+sudo ./setup-host-network.sh
+
+# Create log directories before Compose bind-mounts them
+mkdir -p logs/{nrf,scp,ausf,udr,udm,pcf,nssf,amf,smf,upf}
+
+# Build and launch the 5GC stack
+docker compose build
+docker compose up -d
+```
+
+Each container copies its mounted YAML config into place at startup, so edit the files
+under `open5gs-containers/<nf>/<nf>.yaml` and restart the matching service with
+`docker compose restart <nf>` whenever you need to tweak parameters.
 
 ## 🛠️ What Gets Installed
 

@@ -14,7 +14,7 @@ upf:
         port: 8805
   gtpu:
     server:
-      - address: 0.0.0.0  # Bind to all interfaces for external gNB
+      - address: 10.10.0.7  # Bind to all interfaces for external gNB
         port: 2152      # Standard port, can use 2153 as alternative
   session:
     # DNN: embb.testbed (eMBB - Enhanced Mobile Broadband)

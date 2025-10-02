@@ -1,0 +1,41 @@
+Traceroute Summary Report
+========================
+Date: Thu Oct  2 04:38:50 PM WIB 2025
+Destination: bits.ub.ac.id
+Max Hops: 30
+Timeout: 5 seconds
+Mode: UDP traceroute
+
+Test Results:
+-------------
+
+uesimtun0:
+  Status: Completed
+  Hops traced: 10
+  Last responding hop: 172.66.168.182
+  First 3 hops:
+    1  RT-AC59U_V2-9BA0 (192.168.50.1)  1.381 ms  1.338 ms  1.324 ms
+    2  192.168.100.1 (192.168.100.1)  2.551 ms  2.538 ms  2.524 ms
+    3  36.85.48.1 (36.85.48.1)  9.155 ms  9.144 ms  9.131 ms
+    10  172.66.168.182 (172.66.168.182)  28.127 ms  29.372 ms  29.320 ms
+
+uesimtun1:
+  Status: Completed
+  Hops traced: 7
+  Last responding hop: 180.240.204.195
+  First 3 hops:
+    1  RT-AC59U_V2-9BA0 (192.168.50.1)  7.014 ms  6.986 ms  8.026 ms
+    2  192.168.100.1 (192.168.100.1)  8.207 ms  8.193 ms *
+    3  36.85.48.1 (36.85.48.1)  13.264 ms  13.251 ms  13.235 ms
+
+uesimtun2:
+  Status: Completed
+  Hops traced: 10
+  Last responding hop: 104.20.43.194
+  First 3 hops:
+    1  RT-AC59U_V2-9BA0 (192.168.50.1)  6.949 ms  6.905 ms  6.892 ms
+    2  * * 192.168.100.1 (192.168.100.1)  7.910 ms
+    3  36.85.48.1 (36.85.48.1)  10.215 ms  13.424 ms  13.407 ms
+    10  104.20.43.194 (104.20.43.194)  28.576 ms  26.151 ms  27.681 ms
+
+Full logs available in: /home/rayhan/UERANSIM-Open5GS/ueransim/testings/traceroute_testing_logs

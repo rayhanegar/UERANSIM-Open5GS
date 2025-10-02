@@ -1,0 +1,20 @@
+Command: /home/rayhan/UERANSIM-Open5GS/ueransim/build/nr-binder uesimtun0 traceroute -m 30 -w 5 bits.ub.ac.id
+Interface: uesimtun0
+Destination: bits.ub.ac.id
+Mode: UDP traceroute
+Max Hops: 30
+Timeout: 5 seconds
+Timestamp: Thu Oct  2 04:37:49 PM WIB 2025
+----------------------------------------
+ERROR: ld.so: object './libdevbnd.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+traceroute to bits.ub.ac.id (172.66.168.182), 30 hops max, 60 byte packets
+ 1  RT-AC59U_V2-9BA0 (192.168.50.1)  1.381 ms  1.338 ms  1.324 ms
+ 2  192.168.100.1 (192.168.100.1)  2.551 ms  2.538 ms  2.524 ms
+ 3  36.85.48.1 (36.85.48.1)  9.155 ms  9.144 ms  9.131 ms
+ 4  180.252.2.161 (180.252.2.161)  6.265 ms  6.252 ms  6.240 ms
+ 5  180.240.190.61 (180.240.190.61)  27.793 ms *  27.767 ms
+ 6  180.240.190.61 (180.240.190.61)  27.755 ms *  24.529 ms
+ 7  180.240.204.195 (180.240.204.195)  28.727 ms 180.240.205.80 (180.240.205.80)  27.770 ms 180.240.205.82 (180.240.205.82)  26.407 ms
+ 8  162.158.160.248 (162.158.160.248)  29.929 ms  26.352 ms  29.880 ms
+ 9  162.158.160.161 (162.158.160.161)  35.043 ms 162.158.160.165 (162.158.160.165)  27.143 ms 162.158.160.161 (162.158.160.161)  36.709 ms
+10  172.66.168.182 (172.66.168.182)  28.127 ms  29.372 ms  29.320 ms

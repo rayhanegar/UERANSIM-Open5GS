@@ -91,7 +91,7 @@ fi
 
 # Timestamp for log files
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_DIR="/home/${USER}/UERANSIM-Open5GS/testings/testing_logs"
+LOG_DIR="/home/${USER}/UERANSIM-Open5GS/ueransim/testings/testing_logs"
 
 # Test interfaces
 INTERFACES=("uesimtun0" "uesimtun1" "uesimtun2")
@@ -138,7 +138,7 @@ run_test() {
     echo "Testing ${interface} - ${test_type} ${direction}..."
     
     # Build command
-    cmd="/home/${USER}/UERANSIM/build/nr-binder ${interface} iperf3 -c ${SERVER} -P ${PARALLEL} -t ${DURATION} -w ${BUFFER_SIZE}"
+    cmd="/home/${USER}/UERANSIM-Open5GS/ueransim/build/nr-binder ${interface} iperf3 -c ${SERVER} -P ${PARALLEL} -t ${DURATION} -w ${BUFFER_SIZE}"
     
     # Add UDP flag if needed
     if [ "$test_type" = "UDP" ]; then

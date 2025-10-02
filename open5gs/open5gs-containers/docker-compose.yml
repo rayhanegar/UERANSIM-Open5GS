@@ -2,27 +2,27 @@ version: '3.8'
 
 services:
   # MongoDB Database (Required by several NFs)
-  mongodb:
-    image: mongo:5.0
-    container_name: open5gs-mongodb
-    hostname: mongodb
-    networks:
-      5gcore:
-        ipv4_address: 10.10.0.250
-    volumes:
-      - mongodb_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin123
-      - MONGO_INITDB_DATABASE=open5gs
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+  # mongodb:
+  #   image: mongo:5.0
+  #   container_name: open5gs-mongodb
+  #   hostname: mongodb
+  #   networks:
+  #     5gcore:
+  #       ipv4_address: 10.10.0.250
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #     - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=admin123
+  #     - MONGO_INITDB_DATABASE=open5gs
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 10s
 
   # 5G Core Network Functions
 
@@ -42,9 +42,9 @@ services:
     volumes:
       - ./nrf/nrf.yaml:/etc/open5gs/custom/nrf.yaml:ro
       - ./logs/nrf:/var/log/open5gs
-    depends_on:
-      mongodb:
-        condition: service_healthy
+    # depends_on:
+      # mongodb:
+      #   condition: service_healthy
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -101,7 +101,7 @@ services:
       - ./udr/udr.yaml:/etc/open5gs/custom/udr.yaml:ro
       - ./logs/udr:/var/log/open5gs
     depends_on:
-      - mongodb
+      # - mongodb
       - scp
     restart: unless-stopped
     cap_add:
@@ -189,7 +189,7 @@ services:
       - ./pcf/pcf.yaml:/etc/open5gs/custom/pcf.yaml:ro
       - ./logs/pcf:/var/log/open5gs
     depends_on:
-      - mongodb
+      # - mongodb
       - scp
     restart: unless-stopped
     cap_add:
@@ -376,7 +376,7 @@ networks:
       com.docker.network.bridge.name: br-5gcore
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "true"
-      com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+      com.docker.network.bridge.host_binding_ipv4: 10.10.0.1
 
 volumes:
   mongodb_data:

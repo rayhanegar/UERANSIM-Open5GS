@@ -1,0 +1,23 @@
+Command: /home/rayhan/UERANSIM-Open5GS/ueransim/build/nr-binder uesimtun2 iperf3 -c hashbrown -P 1 -t 10 -w 128K -R
+----------------------------------------
+ERROR: ld.so: object './libdevbnd.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+Connecting to host hashbrown, port 5201
+Reverse mode, remote host hashbrown is sending
+[  5] local 100.86.247.6 port 34436 connected to 100.96.71.124 port 5201
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-1.00   sec  13.1 MBytes   110 Mbits/sec                  
+[  5]   1.00-2.00   sec  14.2 MBytes   120 Mbits/sec                  
+[  5]   2.00-3.00   sec  14.6 MBytes   123 Mbits/sec                  
+[  5]   3.00-4.00   sec  14.5 MBytes   122 Mbits/sec                  
+[  5]   4.00-5.00   sec  14.8 MBytes   124 Mbits/sec                  
+[  5]   5.00-6.00   sec  14.5 MBytes   122 Mbits/sec                  
+[  5]   6.00-7.00   sec  14.5 MBytes   122 Mbits/sec                  
+[  5]   7.00-8.00   sec  14.2 MBytes   120 Mbits/sec                  
+[  5]   8.00-9.00   sec  14.5 MBytes   122 Mbits/sec                  
+[  5]   9.00-10.00  sec  14.6 MBytes   123 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-10.00  sec   144 MBytes   121 Mbits/sec    0             sender
+[  5]   0.00-10.00  sec   144 MBytes   120 Mbits/sec                  receiver
+
+iperf Done.

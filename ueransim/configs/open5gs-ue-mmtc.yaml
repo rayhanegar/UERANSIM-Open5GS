@@ -33,6 +33,7 @@ tunNetmask: '255.255.255.0'
 gnbSearchList:
   - 127.0.0.1
   - 172.19.0.137
+  - 192.168.50.200
 
 # UAC Access Identities Configuration
 uacAic:

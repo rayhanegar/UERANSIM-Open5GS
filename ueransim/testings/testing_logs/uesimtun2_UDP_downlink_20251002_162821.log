@@ -1,0 +1,23 @@
+Command: /home/rayhan/UERANSIM-Open5GS/ueransim/build/nr-binder uesimtun2 iperf3 -c hashbrown -P 1 -t 10 -w 128K -u -b 100M -R
+----------------------------------------
+ERROR: ld.so: object './libdevbnd.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+Connecting to host hashbrown, port 5201
+Reverse mode, remote host hashbrown is sending
+[  5] local 100.86.247.6 port 59697 connected to 100.96.71.124 port 5201
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-1.00   sec  11.2 MBytes  93.6 Mbits/sec  0.201 ms  0/9532 (0%)  
+[  5]   1.00-2.00   sec  11.7 MBytes  98.6 Mbits/sec  0.133 ms  34/10067 (0.34%)  
+[  5]   2.00-3.00   sec  12.8 MBytes   107 Mbits/sec  0.130 ms  6/10922 (0.055%)  
+[  5]   3.00-4.00   sec  11.9 MBytes  99.8 Mbits/sec  0.056 ms  0/10156 (0%)  
+[  5]   4.00-5.00   sec  11.9 MBytes   100 Mbits/sec  0.128 ms  0/10193 (0%)  
+[  5]   5.00-6.00   sec  11.9 MBytes   100 Mbits/sec  0.136 ms  0/10193 (0%)  
+[  5]   6.00-7.00   sec  11.9 MBytes  99.7 Mbits/sec  0.197 ms  0/10153 (0%)  
+[  5]   7.00-8.00   sec  11.9 MBytes   100 Mbits/sec  0.116 ms  0/10198 (0%)  
+[  5]   8.00-9.00   sec  11.9 MBytes  99.5 Mbits/sec  0.033 ms  0/10128 (0%)  
+[  5]   9.00-10.00  sec  12.0 MBytes   100 Mbits/sec  0.160 ms  0/10224 (0%)  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-10.01  sec   119 MBytes   100 Mbits/sec  0.000 ms  0/101864 (0%)  sender
+[  5]   0.00-10.00  sec   119 MBytes  99.9 Mbits/sec  0.160 ms  40/101766 (0.039%)  receiver
+
+iperf Done.
