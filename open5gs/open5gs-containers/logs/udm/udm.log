@@ -339,3 +339,7 @@ Open5GS daemon v2.7.6
 10/09 00:21:54.681: [udm] INFO: [360c4ec0-a378-41f0-89f1-2fb593148b23] Need to update Subscription (../src/udm/udm-sm.c:571)
 10/09 00:21:54.682: [sbi] INFO: [360c50f0-a378-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T00:21:54.682637+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
 10/09 00:21:54.682: [sbi] INFO: [360c4ec0-a378-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T00:21:54.682656+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+10/09 04:41:54.347: [udm] INFO: [5dbfe4d6-a2d3-41f0-89f1-2fb593148b23] Need to update Subscription (../src/udm/udm-sm.c:571)
+10/09 04:41:54.347: [udm] INFO: [5dbfeb3e-a2d3-41f0-89f1-2fb593148b23] Need to update Subscription (../src/udm/udm-sm.c:571)
+10/09 04:41:54.348: [sbi] INFO: [5dbfe4d6-a2d3-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T04:41:54.348259+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+10/09 04:41:54.348: [sbi] INFO: [5dbfeb3e-a2d3-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T04:41:54.348434+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)

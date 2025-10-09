@@ -222,3 +222,5 @@ Open5GS daemon v2.7.6
 10/08 16:41:54.338: [sbi] INFO: [5dc09728-a2d3-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-09T16:41:54.338437+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
 10/09 00:21:54.628: [nssf] INFO: [3603aff4-a378-41f0-89f1-2fb593148b23] Need to update Subscription (../src/nssf/nssf-sm.c:345)
 10/09 00:21:54.629: [sbi] INFO: [3603aff4-a378-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T00:21:54.629837+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+10/09 04:41:54.340: [nssf] INFO: [5dc09728-a2d3-41f0-89f1-2fb593148b23] Need to update Subscription (../src/nssf/nssf-sm.c:345)
+10/09 04:41:54.341: [sbi] INFO: [5dc09728-a2d3-41f0-89f1-2fb593148b23] Subscription updated(204 No Content) until 2025-10-10T04:41:54.341171+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
