@@ -69,5 +69,6 @@ spec:
         configMap:
           name: nrf-config
       - name: logs
-        persistentVolumeClaim:
-          claimName: open5gs-logs-pvc
+        hostPath:
+          path: /mnt/data/open5gs-logs
+          type: DirectoryOrCreate

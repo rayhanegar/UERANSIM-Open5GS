@@ -111,8 +111,9 @@ spec:
         configMap:
           name: upf-config
       - name: logs
-        persistentVolumeClaim:
-          claimName: open5gs-logs-pvc
+        hostPath:
+          path: /mnt/data/open5gs-logs
+          type: DirectoryOrCreate
       - name: dev-net-tun
         hostPath:
           path: /dev/net/tun

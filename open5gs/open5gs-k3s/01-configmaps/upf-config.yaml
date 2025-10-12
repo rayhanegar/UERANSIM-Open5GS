@@ -15,6 +15,7 @@ data:
         server:
           - address: 0.0.0.0
             port: 8805
+            advertise: upf.open5gs.svc.cluster.local
       
       # GTP-U interface (N3)
       gtpu:
@@ -23,18 +24,27 @@ data:
             port: 2152
       
       # DNN configurations
-      subnet:
-        - dnn: embb.testbed
-          addr: 10.45.0.1/24
-          dev: ogstun
-        
-        - dnn: urllc.v2x
-          addr: 10.45.1.1/24
-          dev: ogstun2
-        
-        - dnn: mmtc.testbed
-          addr: 10.45.2.1/24
-          dev: ogstun3
+      session:
+      # DNN: embb.testbed (eMBB - Enhanced Mobile Broadband)
+      - subnet: 10.45.0.0/24
+        gateway: 10.45.0.1
+        dnn: embb.testbed
+        dev: ogstun
+      # DNN: urllc.v2x (URLLC - Ultra Reliable Low Latency Communications)
+      - subnet: 10.45.1.0/24
+        gateway: 10.45.1.1
+        dnn: urllc.v2x
+        dev: ogstun2
+      # DNN: mmtc.testbed (mMTC - Massive Machine Type Communications)  
+      - subnet: 10.45.2.0/24
+        gateway: 10.45.2.1
+        dnn: mmtc.testbed
+        dev: ogstun3
+      # IPv6 support
+      - subnet: 2001:db8:cafe::/48
+        gateway: 2001:db8:cafe::1
+        dnn: embb.testbed
+        dev: ogstun
       
       metrics:
         server:

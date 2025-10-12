@@ -51,7 +51,7 @@ spec:
         - containerPort: 7777
         env:
         - name: DB_URI
-          value: "mongodb://admin:1423@mongodb:27017/open5gs?authSource=admin"
+          value: "mongodb://mongodb:27017/open5gs"
         volumeMounts:
         - name: config
           mountPath: /etc/open5gs/custom
@@ -81,5 +81,6 @@ spec:
         configMap:
           name: udr-config
       - name: logs
-        persistentVolumeClaim:
-          claimName: open5gs-logs-pvc
+        hostPath:
+          path: /mnt/data/open5gs-logs
+          type: DirectoryOrCreate

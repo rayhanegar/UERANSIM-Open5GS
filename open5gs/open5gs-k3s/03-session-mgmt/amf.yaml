@@ -15,7 +15,7 @@ spec:
   - name: ngap
     port: 38412
     targetPort: 38412
-    nodePort: 38412  # External access
+    nodePort: 30412  # Valid NodePort range (30000-32767)
     protocol: SCTP
 
 ---
@@ -61,5 +61,6 @@ spec:
         configMap:
           name: amf-config
       - name: logs
-        persistentVolumeClaim:
-          claimName: open5gs-logs-pvc
+        hostPath:
+          path: /mnt/data/open5gs-logs
+          type: DirectoryOrCreate

@@ -19,7 +19,7 @@ data:
         ue: 1024  # The number of UE can be increased depending on memory size.
     #    peer: 64
 
-    udr:
+    udm:
       sbi:
         server:
           - address: 0.0.0.0
