@@ -30,19 +30,19 @@ data:
             - uri: http://scp.open5gs.svc.cluster.local:7777
       pfcp:
         server:
-          - address: 127.0.0.4
-            port: 8805
+          - address: 192.168.50.200
+            port: 8806
         client:
           upf:
-            - address: 127.0.0.7
-              port: 8806
+            - address: 192.168.50.200
               dnn: ['embb.testbed', 'urllc.v2x', 'mmtc.testbed']
       # gtpc:
       #   server:
       #     - address: 127.0.0.4
       gtpu:
         server:
-          - address: 127.0.0.4
+          - address: 192.168.50.200
+            port: 0
       metrics:
         server:
           - address: 127.0.0.4
