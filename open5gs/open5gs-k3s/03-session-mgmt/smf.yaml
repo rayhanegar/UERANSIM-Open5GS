@@ -13,10 +13,10 @@ spec:
     port: 7777
     targetPort: 7777
     protocol: TCP
-  - name: pfcp
-    port: 8805
-    targetPort: 8805
-    protocol: UDP
+  # - name: pfcp
+  #   port: 8805
+  #   targetPort: 8805
+  #   protocol: UDP
 
 # StatefulSet
 ---
@@ -44,11 +44,21 @@ spec:
         - sh
         - -c
         - |
+          echo "Waiting for SCP..."
           until nc -z scp.open5gs.svc.cluster.local 7777; do
-            echo "Waiting for scp..."
+            echo "SCP not ready, waiting..."
             sleep 2
           done
-      
+
+          echo "Waiting for UPF pod..."
+          until nslookup upf.open5gs.svc.cluster.local; do
+            echo "UPF DNS not ready, waiting..."
+            sleep 2
+          done
+
+          echo "All dependencies ready. Proceeding to start SMF."
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: smf
         image: open5gs-smf:latest

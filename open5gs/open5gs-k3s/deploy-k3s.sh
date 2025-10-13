@@ -90,10 +90,9 @@ if ! kubectl wait --for=condition=ready pod -l component=control-plane -n open5g
 fi
 print_success "Control plane is ready"
 
-# Step 6: Session Management
-print_info "Deploying AMF and SMF..."
+# Step 6: Session Management - AMF
+print_info "Deploying AMF..."
 kubectl apply -f 03-session-mgmt/amf.yaml
-kubectl apply -f 03-session-mgmt/smf.yaml
 
 print_info "Waiting for AMF..."
 if ! kubectl wait --for=condition=ready pod -l app=amf -n open5gs --timeout=60s; then
@@ -101,14 +100,7 @@ if ! kubectl wait --for=condition=ready pod -l app=amf -n open5gs --timeout=60s;
     kubectl logs -l app=amf -n open5gs --tail=50
     exit 1
 fi
-
-print_info "Waiting for SMF..."
-if ! kubectl wait --for=condition=ready pod -l app=smf -n open5gs --timeout=60s; then
-    print_error "SMF failed to start"
-    kubectl logs -l app=smf -n open5gs --tail=50
-    exit 1
-fi
-print_success "Session management is ready"
+print_success "AMF is ready"
 
 # Step 7: User Plane
 print_info "Deploying UPF..."
@@ -121,6 +113,18 @@ if ! kubectl wait --for=condition=ready pod -l app=upf -n open5gs --timeout=60s;
     exit 1
 fi
 print_success "UPF is ready"
+
+# Step 8: Session Management - SMF
+print_info "Deploying SMF..."
+kubectl apply -f 03-session-mgmt/smf.yaml
+
+print_info "Waiting for SMF..."
+if ! kubectl wait --for=condition=ready pod -l app=smf -n open5gs --timeout=60s; then
+    print_error "SMF failed to start"
+    kubectl logs -l app=smf -n open5gs --tail=50
+    exit 1
+fi
+print_success "Session management is ready"
 
 # Summary
 print_success "========================================="

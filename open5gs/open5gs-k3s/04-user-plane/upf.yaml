@@ -7,14 +7,14 @@ spec:
   selector:
     app: upf
   ports:
-  - name: pfcp
-    port: 8805
-    targetPort: 8805
-    protocol: UDP
-  - name: gtpu
-    port: 2152
-    targetPort: 2152
-    protocol: UDP
+  # - name: pfcp
+  #   port: 8806
+  #   targetPort: 8806
+  #   protocol: UDP
+  # - name: gtpu
+  #   port: 2152
+  #   targetPort: 2152
+  #   protocol: UDP
   - name: metrics
     port: 9090
     targetPort: 9090
@@ -37,18 +37,8 @@ spec:
       labels:
         app: upf
     spec:
-      initContainers:
-      - name: wait-for-smf
-        image: busybox:latest
-        command:
-        - sh
-        - -c
-        - |
-          until nc -z smf.open5gs.svc.cluster.local 7777; do
-            echo "Waiting for SMF..."
-            sleep 2
-          done
-      
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: upf
         image: open5gs-upf:latest
@@ -64,7 +54,7 @@ spec:
         
         ports:
         - name: pfcp
-          containerPort: 8805
+          containerPort: 8806
           protocol: UDP
         - name: gtpu
           containerPort: 2152
@@ -103,7 +93,7 @@ spec:
         readinessProbe:
           exec:
             command: ["pgrep", "open5gs-upfd"]
-          initialDelaySeconds: 10
+          initialDelaySeconds: 20
           periodSeconds: 10
       
       volumes:
