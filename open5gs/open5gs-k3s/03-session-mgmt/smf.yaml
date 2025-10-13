@@ -9,8 +9,14 @@ spec:
   selector:
     app: smf
   ports:
-  - port: 7777
+  - name: sbi
+    port: 7777
     targetPort: 7777
+    protocol: TCP
+  - name: pfcp
+    port: 8805
+    targetPort: 8805
+    protocol: UDP
 
 # StatefulSet
 ---
@@ -48,7 +54,12 @@ spec:
         image: open5gs-smf:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 7777
+        - name: sbi
+          containerPort: 7777
+          protocol: TCP
+        - name: pfcp
+          containerPort: 8805
+          protocol: UDP
         env:
         - name: DB_URI
           value: "mongodb://admin:1423@mongodb:27017/open5gs?authSource=admin"

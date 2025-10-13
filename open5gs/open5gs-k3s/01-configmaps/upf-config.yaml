@@ -15,8 +15,7 @@ data:
         server:
           - address: 0.0.0.0
             port: 8805
-            advertise: upf.open5gs.svc.cluster.local
-      
+        
       # GTP-U interface (N3)
       gtpu:
         server:
