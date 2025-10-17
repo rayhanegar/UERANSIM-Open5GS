@@ -65,13 +65,7 @@ spec:
             sleep 2
           done
 
-          echo "Waiting for UPF pod..."
-          until nslookup upf.open5gs.svc.cluster.local; do
-            echo "UPF DNS not ready, waiting..."
-            sleep 2
-          done
-
-          echo "All dependencies ready. Proceeding to start SMF."
+          echo "NRF ready. Proceeding to start SMF."
       containers:
       - name: smf
         image: open5gs-smf:latest

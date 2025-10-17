@@ -32,10 +32,10 @@ data:
         server:
           - address: 0.0.0.0
             port: 8805
-        client:
-          upf:
-            - address: upf.open5gs.svc.cluster.local
-              dnn: ['embb.testbed', 'urllc.v2x', 'mmtc.testbed']
+        # client:
+        #   upf:
+        #     - address: upf.open5gs.svc.cluster.local
+        #       dnn: ['embb.testbed', 'urllc.v2x', 'mmtc.testbed']
       # gtpc:
       #   server:
       #     - address: 0.0.0.0
