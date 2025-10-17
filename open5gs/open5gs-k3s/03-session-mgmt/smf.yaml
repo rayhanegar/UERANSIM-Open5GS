@@ -6,6 +6,8 @@ metadata:
   name: smf
   namespace: open5gs
 spec:
+  type: ClusterIP
+  clusterIP: None
   selector:
     app: smf
   ports:
@@ -13,10 +15,23 @@ spec:
     port: 7777
     targetPort: 7777
     protocol: TCP
-  # - name: pfcp
-  #   port: 8805
-  #   targetPort: 8805
-  #   protocol: UDP
+  - name: pfcp
+    port: 8805
+    targetPort: 8805
+    protocol: UDP
+  - name: gtpc
+    port: 2123
+    targetPort: 2123
+    protocol: UDP
+  - name: gtpu
+    port: 2152
+    targetPort: 2152
+    protocol: UDP
+  - name: metrics
+    port: 9090
+    targetPort: 9090
+    protocol: TCP
+
 
 # StatefulSet
 ---
@@ -44,9 +59,9 @@ spec:
         - sh
         - -c
         - |
-          echo "Waiting for SCP..."
-          until nc -z scp.open5gs.svc.cluster.local 7777; do
-            echo "SCP not ready, waiting..."
+          echo "Waiting for nrf..."
+          until nc -z nrf.open5gs.svc.cluster.local 7777; do
+            echo "nrf not ready, waiting..."
             sleep 2
           done
 
@@ -57,8 +72,6 @@ spec:
           done
 
           echo "All dependencies ready. Proceeding to start SMF."
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: smf
         image: open5gs-smf:latest
@@ -70,9 +83,18 @@ spec:
         - name: pfcp
           containerPort: 8805
           protocol: UDP
+        - name: gtpc
+          containerPort: 2123
+          protocol: UDP
+        - name: gtpu
+          containerPort: 2152
+          protocol: UDP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
         env:
         - name: DB_URI
-          value: "mongodb://admin:1423@mongodb:27017/open5gs?authSource=admin"
+          value: "mongodb://mongodb.open5gs.svc.cluster.local:27017/open5gs"
         volumeMounts:
         - name: config
           mountPath: /etc/open5gs/custom

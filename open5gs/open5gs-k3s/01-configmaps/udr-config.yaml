@@ -5,13 +5,13 @@ metadata:
   namespace: open5gs
 data:
   udr.yaml: |
-    db_uri: mongodb://mongodb:27017/open5gs
+    db_uri: mongodb://mongodb.open5gs.svc.cluster.local:27017/open5gs
     logger:
       file:
         path: /var/log/open5gs/udr.log
         timestamp: true
       default:
-        timestamp: false
+        timestamp: true
     #  level: info   # fatal|error|warn|info(default)|debug|trace
 
     global:
@@ -25,5 +25,7 @@ data:
           - address: 0.0.0.0
             port: 7777
         client:
-          scp:
-            - uri: http://scp.open5gs.svc.cluster.local:7777
+          nrf:
+            - uri: http://nrf.open5gs.svc.cluster.local:7777
+          # scp:
+          #   - uri: http://scp.open5gs.svc.cluster.local:7777

@@ -9,6 +9,9 @@ data:
       file:
         path: /var/log/open5gs/nrf.log
         timestamp: true
+      default:
+        timestamp: true
+    #  level: info   # fatal|error|warn|info(default)|debug|
 
     global:
       max:

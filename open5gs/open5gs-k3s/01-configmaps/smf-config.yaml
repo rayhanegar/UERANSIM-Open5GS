@@ -10,7 +10,7 @@ data:
         path: /var/log/open5gs/smf.log
         timestamp: true
       default:
-        timestamp: false
+        timestamp: true
     #  level: info   # fatal|error|warn|info(default)|debug|trace
 
     global:
@@ -21,46 +21,43 @@ data:
     smf:
       sbi:
         server:
-          - address: 127.0.0.4
+          - address: 0.0.0.0
             port: 7777
         client:
-    #      nrf:
-    #        - uri: http://nrf.open5gs.svc.cluster.local:7777
-          scp:
-            - uri: http://scp.open5gs.svc.cluster.local:7777
+          nrf:
+           - uri: http://nrf.open5gs.svc.cluster.local:7777
+          # scp:
+          #   - uri: http://scp.open5gs.svc.cluster.local:7777
       pfcp:
         server:
-          - address: 192.168.50.200
-            port: 8806
+          - address: 0.0.0.0
+            advertise: smf.open5gs.svc.cluster.local
         client:
           upf:
-            - address: 192.168.50.200
+            - address: upf.open5gs.svc.cluster.local
               dnn: ['embb.testbed', 'urllc.v2x', 'mmtc.testbed']
       # gtpc:
       #   server:
-      #     - address: 127.0.0.4
+      #     - address: 0.0.0.0
       gtpu:
         server:
-          - address: 192.168.50.200
+          - address: upf.open5gs.svc.cluster.local
             port: 0
       metrics:
         server:
-          - address: 127.0.0.4
+          - address: 0.0.0.0
             port: 9090
       session:
         - subnet: 10.45.0.0/24
           sst: 1
-          # sd: 000001
           dnn: embb.testbed
           gateway: 10.45.0.1
         - subnet: 10.45.1.0/24
           sst: 2
-          # sd: 000002
           dnn: urllc.v2x
           gateway: 10.45.1.1
         - subnet: 10.45.2.0/24
           sst: 3
-          # sd: 000003
           dnn: mmtc.testbed
           gateway: 10.45.2.1
       dns:
@@ -78,15 +75,12 @@ data:
       info:
         - s_nssai:
             - sst: 1
-              # sd: 000001
               dnn:
                 - embb.testbed
             - sst: 2
-              # sd: 000002
               dnn:
                 - urllc.v2x
             - sst: 3
-              # sd: 000003
               dnn:
                 - mmtc.testbed
           tai:

@@ -11,7 +11,7 @@ data:
         path: /var/log/open5gs/udm.log
         timestamp: true
       default:
-        timestamp: false
+        timestamp: true
     #  level: info   # fatal|error|warn|info(default)|debug|trace
 
     global:
@@ -25,5 +25,7 @@ data:
           - address: 0.0.0.0
             port: 7777
         client:
-          scp:
-            - uri: http://scp.open5gs.svc.cluster.local:7777
+          nrf:
+            - uri: http://nrf.open5gs.svc.cluster.local:7777
+          # scp:
+          #   - uri: http://scp.open5gs.svc.cluster.local:7777

@@ -38,8 +38,8 @@ spec:
         - sh
         - -c
         - |
-          until nc -z scp.open5gs.svc.cluster.local 7777; do
-            echo "Waiting for scp..."
+          until nc -z nrf.open5gs.svc.cluster.local 7777; do
+            echo "Waiting for nrf..."
             sleep 2
           done
       
@@ -51,7 +51,7 @@ spec:
         - containerPort: 7777
         env:
         - name: DB_URI
-          value: "mongodb://admin:1423@mongodb:27017/open5gs?authSource=admin"
+          value: "mongodb://mongodb.open5gs.svc.cluster.local:27017/open5gs"
         volumeMounts:
         - name: config
           mountPath: /etc/open5gs/custom
